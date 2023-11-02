@@ -2,7 +2,8 @@
 import re
 import argparse
 import os.path
-
+import multiprocessing # for pyinstaller fixes
+import sys
 
 class Sm2Pms:
 
@@ -333,7 +334,8 @@ class Sm2Pms:
         
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Extract PNM scorecard images')
+    multiprocessing.freeze_support() # pyinstaller
+    parser = argparse.ArgumentParser(description='Parse .sm files to .pms')
     parser.add_argument(
         '--file',
         dest='file',
@@ -349,12 +351,22 @@ if __name__ == "__main__":
         type=str,
         help='Path were exported files will be save.',
     )
-
+    #print(sys.argv)
+    
     # Parse args, validate invariants.
-    args = parser.parse_args()
-
-    if os.path.isfile(args.file):
-        export = Sm2Pms(args.file,args.export)
-        export.start()
+    
+    if len(sys.argv) != 2:
+     args = parser.parse_args()
+     file = args.file
+     export = args.export
+    else:
+     file = sys.argv[1]
+     export = None
+     
+    
+    if os.path.isfile(file):
+      export = Sm2Pms(file,export)
+      export.start()
     else:
         raise Exception('File doesnt exist!')
+
